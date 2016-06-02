@@ -32,6 +32,7 @@ from .technical import (
     TrueRange,
     VWAP,
     WeightedAverageValue,
+    WilliamsR,
 )
 
 __all__ = [
@@ -62,4 +63,5 @@ __all__ = [
     'TrueRange',
     'VWAP',
     'WeightedAverageValue',
+    'WilliamsR',
 ]
