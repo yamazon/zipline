@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
 import logbook
 import math
 import numpy as np
@@ -28,17 +27,12 @@ from six import iteritems
 from . risk import (
     alpha,
     check_entry,
-    choose_treasury,
     downside_risk,
     sharpe_ratio,
     sortino_ratio,
 )
 
 log = logbook.Logger('Risk Cumulative')
-
-
-choose_treasury = functools.partial(choose_treasury, lambda *args: '10year',
-                                    compound=False)
 
 
 def information_ratio(algo_volatility, algorithm_return, benchmark_return):
@@ -86,9 +80,8 @@ class RiskMetricsCumulative(object):
         'information',
     )
 
-    def __init__(self, sim_params, treasury_curves, trading_calendar,
+    def __init__(self, sim_params, trading_calendar,
                  create_first_day_stats=False):
-        self.treasury_curves = treasury_curves
         self.trading_calendar = trading_calendar
         self.start_session = sim_params.start_session
         self.end_session = sim_params.end_session
@@ -300,7 +293,6 @@ algorithm_returns ({algo_count}) in range {start} : {end} on {dt}"
             self.benchmark_volatility[dt_loc],
             'algo_volatility':
             self.algorithm_volatility[dt_loc],
-            'treasury_period_return': self.treasury_period_return,
             # Though the two following keys say period return,
             # they would be more accurately called the cumulative return.
             # However, the keys need to stay the same, for now, for backwards

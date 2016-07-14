@@ -52,9 +52,7 @@ class TradingEnvironment(object):
     Parameters
     ----------
     load : callable, optional
-        The function that returns benchmark returns and treasury curves.
-        The treasury curves are expected to be a DataFrame with an index of
-        dates and columns of the curve names, e.g. '10year', '1month', etc.
+        The function that returns benchmark returns.
     bm_symbol : str, optional
         The benchmark symbol
     exchange_tz : tz-coercable, optional
@@ -90,7 +88,7 @@ class TradingEnvironment(object):
         if not trading_calendar:
             trading_calendar = get_calendar("NYSE")
 
-        self.benchmark_returns, self.treasury_curves = load(
+        self.benchmark_returns = load(
             trading_calendar.day,
             trading_calendar.schedule.index,
             self.bm_symbol,
