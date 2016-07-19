@@ -17,11 +17,6 @@ import datetime
 import calendar
 import pandas as pd
 import numpy as np
-import pytz
-import pandas as pd
-
-from itertools import chain
-from six import itervalues
 
 import zipline.finance.risk as risk
 from zipline.utils import factory
@@ -71,8 +66,7 @@ class TestRisk(WithTradingEnvironment, ZiplineTestCase):
         returns = [0.1] * 100
         r_objects = factory.create_returns_from_list(returns, self.sim_params)
         self.assertTrue(r_objects.index[-1] <=
-                        datetime.datetime(
-                            year=2006, month=12, day=31, tzinfo=pytz.utc))
+                        pd.Timestamp('2006-12-31', tz='UTC'))
 
     def test_drawdown(self):
         np.testing.assert_equal(
@@ -407,13 +401,33 @@ class TestRisk(WithTradingEnvironment, ZiplineTestCase):
                          [0.0500])
 
     def test_benchmarkrange(self):
-        self.check_year_range(
-            pd.Timestamp('2008-01-01', tz=pytz.utc),
-            2)
+        start_session = self.trading_calendar.minute_to_session_label(
+            pd.Timestamp("2008-01-01", tz='UTC')
+        )
+
+        end_session = self.trading_calendar.minute_to_session_label(
+            pd.Timestamp("2010-01-01", tz='UTC'), direction="previous"
+        )
+
+        sim_params = SimulationParameters(
+            start_session=start_session,
+            end_session=end_session,
+            trading_calendar=self.trading_calendar,
+        )
+
+        returns = factory.create_returns_from_range(sim_params)
+        metrics = risk.RiskReport(returns, self.sim_params,
+                                  trading_calendar=self.trading_calendar,
+                                  treasury_curves=self.env.treasury_curves,
+                                  benchmark_returns=self.env.benchmark_returns)
+
+        self.check_metrics(metrics, 24, start_session)
 
     def test_partial_month(self):
 
-        start = pd.Timestamp('1991-01-01', tz=pytz.utc)
+        start_session = self.trading_calendar.minute_to_session_label(
+            pd.Timestamp("1991-01-01", tz='UTC')
+        )
 
         # 1992 and 1996 were leap years
         total_days = 365 * 5 + 2
@@ -506,4 +520,3 @@ class TestRisk(WithTradingEnvironment, ZiplineTestCase):
             )
             self.assert_month(start_date.month, col[-1]._end_session.month)
             self.assert_last_day(col[-1]._end_session)
-
