@@ -51,3 +51,17 @@ def is_open(ndarray[long_t, ndim=1] opens,
             # this can happen if we're outside the schedule's range (like
             # after the last close)
             return False
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def get_session_nano(ndarray[long_t, ndim=1] closes,
+               ndarray[long_t, ndim=1] session_labels,
+               long_t minute_val):
+    cdef int idx
+    cdef long current_or_next_session_nano
+
+    idx = searchsorted(closes, minute_val)
+    current_or_next_session_nano = session_labels[idx]
+
+    return current_or_next_session_nano
