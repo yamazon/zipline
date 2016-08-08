@@ -140,7 +140,7 @@ class QuarterEstimatesLoader(PipelineLoader):
                     adjustments=None
                 )
                 out[c] = loader.load_adjusted_array([c], dates, assets, mask)[c]
-            return out
+        return out
 
 
 class NextQuartersEstimatesLoader(QuarterEstimatesLoader):
