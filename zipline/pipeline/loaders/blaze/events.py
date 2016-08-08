@@ -91,7 +91,7 @@ class BlazeEventsLoader(PipelineLoader):
 
     def load_adjusted_array(self, columns, dates, assets, mask):
         raw = load_raw_data(assets, dates, self._data_query_time,
-                            self._data_query_tz, self._exp, self._odo_kwargs)
+                            self._data_query_tz, self._expr, self._odo_kwargs)
 
         return EventsLoader(
             events=raw,
