@@ -370,8 +370,7 @@ def _make_bundle_core():
                     wd.ensure_dir(*minute_equity_relative(
                         name, timestr, environ=environ)
                     ),
-                    bundle.opens,
-                    bundle.closes,
+                    nyse_cal,
                     minutes_per_day=bundle.minutes_per_day,
                 )
                 asset_db_writer = AssetDBWriter(
