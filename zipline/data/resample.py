@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from zipline.data.session_bars import SessionBarReader
+from zipline.utils.memoize import lazyval
 
 _MINUTE_TO_SESSION_OHCLV_HOW = {
     'open': 'first',
@@ -56,20 +57,32 @@ class MinuteResampleSessionBarReader(SessionBarReader):
         self._minute_bar_reader = minute_bar_reader
 
     def load_raw_arrays(self, columns, start_date, end_date, assets):
-        pass
+        # TODO: Do we need to get open and close?
+        minute_data = self._minute_bar_reader.load_raw_arrays(
+            columns, start_date, end_date, assets)
+        # Now need to resample here and then return result.
+        return 'resampled_minute_data'
 
     def spot_price(self, sid, day, colname):
         pass
 
+    @lazyval
     def sessions(self):
-        pass
+        cal = self.trading_calendar
+        first = self._minute_bar_reader.first_trading_day
+        last = cal.minute_to_session_label(
+            self._minute_bar_reader.last_available_dt)
+        return cal.sessions_in_range(first, last)
 
+    @lazyval
     def last_available_dt(self):
-        pass
+        self.trading_calendar.minute_to_session_label(
+            self._minute_bar_reader.last_available_dt
+        )
 
     def trading_calendar(self):
         """
         Returns the zipline.utils.calendar.trading_calendar used to read
          the data.  Can be None (if the writer didn't specify it).
         """
-        pass
+        return self._minute_bar_reader.trading_calendar

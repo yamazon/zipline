@@ -715,7 +715,7 @@ class BcolzDailyBarReader(SessionBarReader):
             return price
 
 
-class PanelBarReader(DailyBarReader):
+class PanelBarReader(SessionBarReader):
     """
     Reader for data passed as Panel.
 
