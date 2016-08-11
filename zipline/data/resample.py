@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from zipline.data.session_bars import SessionBarReader
+
 _MINUTE_TO_SESSION_OHCLV_HOW = {
     'open': 'first',
     'high': 'max',
@@ -46,3 +48,9 @@ def minute_to_session(minute_frame, calendar):
     # including days with no minute data.
     return minute_frame.resample(calendar.day,
                                  how=_MINUTE_TO_SESSION_OHCLV_HOW)
+
+
+class MinuteResampleSessionBarReader(object):
+
+    def __init__(self, minute_bar_reader):
+        self._minute_bar_reader = minute_bar_reader
