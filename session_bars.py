@@ -17,7 +17,7 @@ from six import with_metaclass
 
 class SessionBarReader(with_metaclass(ABCMeta)):
     """
-    Reader for OHCLV pricing data at a daily frequency.
+    Reader for OHCLV pricing data at a session frequency.
     """
     @abstractmethod
     def load_raw_arrays(self, columns, start_date, end_date, assets):

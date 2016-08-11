@@ -50,7 +50,26 @@ def minute_to_session(minute_frame, calendar):
                                  how=_MINUTE_TO_SESSION_OHCLV_HOW)
 
 
-class MinuteResampleSessionBarReader(object):
+class MinuteResampleSessionBarReader(SessionBarReader):
 
     def __init__(self, minute_bar_reader):
         self._minute_bar_reader = minute_bar_reader
+
+    def load_raw_arrays(self, columns, start_date, end_date, assets):
+        pass
+
+    def spot_price(self, sid, day, colname):
+        pass
+
+    def sessions(self):
+        pass
+
+    def last_available_dt(self):
+        pass
+
+    def trading_calendar(self):
+        """
+        Returns the zipline.utils.calendar.trading_calendar used to read
+         the data.  Can be None (if the writer didn't specify it).
+        """
+        pass

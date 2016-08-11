@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from abc import ABCMeta, abstractmethod, abstractproperty
 import json
 import os
 from os.path import join
+from six import with_metaclass
 from textwrap import dedent
 
 from cachetools import LRUCache
@@ -46,6 +48,29 @@ class BcolzMinuteOverlappingData(Exception):
 
 class BcolzMinuteWriterColumnMismatch(Exception):
     pass
+
+
+class MinuteBarReader(with_metaclass(ABCMeta)):
+
+    @abstractproperty
+    def last_available_dt(self):
+        pass
+
+    @abstractproperty
+    def first_trading_day(self):
+        pass
+
+    @abstractmethod
+    def get_value(self, sid, dt, field):
+        pass
+
+    @abstractmethod
+    def get_last_traded_dt(self, asset, dt):
+        pass
+
+    @abstractmethod
+    def load_raw_arrays(self, fields, start_dt, end_dt, sids):
+        pass
 
 
 def _calc_minute_index(market_opens, minutes_per_day):
@@ -92,7 +117,7 @@ def _sid_subdir_path(sid):
     )
 
 
-class BcolzMinuteBarMetadata(object):
+class BcolzMinuteBarMetadata(MinuteBarReader):
     """
     Parameters
     ----------
