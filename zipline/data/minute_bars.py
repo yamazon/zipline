@@ -179,12 +179,25 @@ class BcolzMinuteBarMetadata(object):
              The factor by which the pricing data is multiplied so that the
              float data can be stored as an integer.
         """
+
+        calendar = self.calendar
+        slicer = calendar.schedule.index.slice_indexer(self.first_trading_day)
+        schedule = calendar.schedule[slicer]
+        market_opens = schedule.market_open
+        market_closes = schedule.market_close
+
         metadata = {
             'version': self.FORMAT_VERSION,
             'ohlc_ratio': self.ohlc_ratio,
             'first_trading_day': str(self.first_trading_day.date()),
             'minutes_per_day': self.minutes_per_day,
             'calendar_name': self.calendar.name,
+            'market_opens': (
+                market_opens.values.astype('datetime64[m]').
+                astype(np.int64).tolist()),
+            'market_closes': (
+                market_closes.values.astype('datetime64[m]').
+                astype(np.int64).tolist()),
         }
         with open(self.metadata_path(rootdir), 'w+') as fp:
             json.dump(metadata, fp)
