@@ -140,15 +140,15 @@ class BcolzMinuteBarMetadata(object):
                 # version 0 always assumed US equities.
                 minutes_per_day = US_EQUITIES_MINUTES_PER_DAY
                 # version 0 always assumed NYSE.
-                calendar_name = 'NYSE'
+                calendar = get_calendar('NYSE')
             else:
                 minutes_per_day = raw_data['minutes_per_day']
-                calendar_name = raw_data['calendar_name']
+                calendar = get_calendar(raw_data['calendar_name'])
 
             return cls(
                 first_trading_day,
                 ohlc_ratio,
-                calendar_name,
+                calendar,
                 minutes_per_day,
             )
 
@@ -156,11 +156,11 @@ class BcolzMinuteBarMetadata(object):
         self,
         first_trading_day,
         ohlc_ratio,
-        calendar_name,
+        calendar,
         minutes_per_day,
     ):
         self.first_trading_day = first_trading_day
-        self.calendar_name  = calendar_name
+        self.calendar = calendar
         self.ohlc_ratio = ohlc_ratio
         self.minutes_per_day = minutes_per_day
 
@@ -184,7 +184,7 @@ class BcolzMinuteBarMetadata(object):
             'ohlc_ratio': self.ohlc_ratio,
             'first_trading_day': str(self.first_trading_day.date()),
             'minutes_per_day': self.minutes_per_day,
-            'calendar_name': self.calendar_name,
+            'calendar_name': self.calendar.name,
         }
         with open(self.metadata_path(rootdir), 'w+') as fp:
             json.dump(metadata, fp)
@@ -298,7 +298,7 @@ class BcolzMinuteBarWriter(object):
 
         self._rootdir = rootdir
         self._first_trading_day = first_trading_day
-        self._calendar_name = calendar.name
+        self._calendar = calendar
         slicer = calendar.schedule.index.slice_indexer(first_trading_day)
         self._schedule = calendar.schedule[slicer]
         self._session_labels = self._schedule.index
@@ -312,7 +312,7 @@ class BcolzMinuteBarWriter(object):
         metadata = BcolzMinuteBarMetadata(
             self._first_trading_day,
             self._ohlc_ratio,
-            self._calendar_name,
+            self._calendar,
             self._minutes_per_day,
         )
         metadata.write(self._rootdir)
@@ -674,7 +674,7 @@ class BcolzMinuteBarReader(object):
 
         self._first_trading_day = metadata.first_trading_day
 
-        calendar = get_calendar(metadata.calendar_name)
+        calendar = metadata.calendar
         slicer = calendar.schedule.index.slice_indexer(self._first_trading_day)
         self._schedule = calendar.schedule[slicer]
         self._market_opens = self._schedule.market_open
