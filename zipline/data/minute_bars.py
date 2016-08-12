@@ -169,15 +169,26 @@ class BcolzMinuteBarMetadata(object):
         Write the metadata to a JSON file in the rootdir.
 
         Values contained in the metadata are:
-        first_trading_day : string
-            'YYYY-MM-DD' formatted representation of the first trading day
-             available in the dataset.
-        minute_index : list of integers
-             nanosecond integer representation of the minutes, the enumeration
-             of which corresponds to the values in each bcolz carray.
+
+        version : int
+            The value of FORMAT_VERSION of this class.
         ohlc_ratio : int
              The factor by which the pricing data is multiplied so that the
              float data can be stored as an integer.
+        first_trading_day : string
+            'YYYY-MM-DD' formatted representation of the first trading day
+             available in the dataset.
+        minutes_per_day : int
+            The number of minutes per each period.
+        calendar_name : str
+            The name of the TradingCalendar on which the minute bars are
+            based.
+        market_opens : list
+            List of int64 values representing UTC market opens as
+            minutes since epoch.
+        market_closes : list
+            List of int64 values representing UTC market closes as
+            minutes since epoch.
         """
 
         calendar = self.calendar
@@ -214,27 +225,11 @@ class BcolzMinuteBarWriter(object):
     rootdir : string
         Path to the root directory into which to write the metadata and
         bcolz subdirectories.
-    market_opens : pd.Series
-        The market opens used as a starting point for each periodic span of
-        minutes in the index.
-
-        The index of the series is expected to be a DatetimeIndex of the
-        UTC midnight of each trading day.
-
-        The values are datetime64-like UTC market opens for each day in the
-        index.
-    market_closes : pd.Series
-        The market closes that correspond with the market opens,
-
-        The index of the series is expected to be a DatetimeIndex of the
-        UTC midnight of each trading day.
-
-        The values are datetime64-like UTC market opens for each day in the
-        index.
-
-        The closes are written so that the reader can filter out non-market
-        minutes even though the tail end of early closes are written in
-        the data arrays to keep a regular shape.
+    calendar : zipline.utils.calendars.trading_calendar.TradingCalendar
+        The trading calendar on which to base the minute bars. Used to
+        get the market opens used as a starting point for each periodic
+        span of minutes in the index, and the market closes that
+        correspond with the market opens.
     minutes_per_day : int
         The number of minutes per each period. Defaults to 390, the mode
         of minutes in NYSE trading days.
