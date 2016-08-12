@@ -100,16 +100,13 @@ class BcolzMinuteBarMetadata(object):
     ----------
     first_trading_day : datetime-like
         UTC midnight of the first day available in the dataset.
-    minute_index : pd.DatetimeIndex
-        The minutes which act as an index into the corresponding values
-        written into each sid's ctable.
-    market_opens : pd.DatetimeIndex
-        The market opens for each day in the data set. (Not yet required.)
-    market_closes : pd.DatetimeIndex
-        The market closes for each day in the data set. (Not yet required.)
     ohlc_ratio : int
          The factor by which the pricing data is multiplied so that the
          float data can be stored as an integer.
+    calendar :  zipline.utils.calendars.trading_calendar.TradingCalendar
+        The TradingCalendar on which the minute bars are based.
+    minutes_per_day : int
+        The number of minutes per each period.
     """
     FORMAT_VERSION = 1
 
