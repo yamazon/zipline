@@ -813,7 +813,7 @@ def _trading_days_for_minute_bars(calendar,
     return calendar.sessions_in_range(first_session, end_date)
 
 
-class _WithMinuteBarDataBase(WithTradingEnvironment):
+class _WithMinuteBarDataBase(WithDefaultDateBounds):
     MINUTE_BAR_LOOKBACK_DAYS = 0
     MINUTE_BAR_START_DATE = alias('START_DATE')
     MINUTE_BAR_END_DATE = alias('END_DATE')

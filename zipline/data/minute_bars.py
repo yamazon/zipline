@@ -117,7 +117,7 @@ def _sid_subdir_path(sid):
     )
 
 
-class BcolzMinuteBarMetadata(MinuteBarReader):
+class BcolzMinuteBarMetadata(object):
     """
     Parameters
     ----------
@@ -688,7 +688,7 @@ class BcolzMinuteBarWriter(object):
         table.flush()
 
 
-class BcolzMinuteBarReader(object):
+class BcolzMinuteBarReader(MinuteBarReader):
     """
     Reader for data written by BcolzMinuteBarWriter
 
