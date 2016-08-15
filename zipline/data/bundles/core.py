@@ -32,7 +32,6 @@ from zipline.utils.calendars import get_calendar, register_calendar
 
 nyse_cal = get_calendar('NYSE')
 trading_days = nyse_cal.all_sessions
-open_and_closes = nyse_cal.schedule
 
 
 def asset_db_path(bundle_name, timestr, environ=None):
@@ -125,7 +124,7 @@ def from_bundle_ingest_dirname(cs):
 
 _BundlePayload = namedtuple(
     '_BundlePayload',
-    'calendar opens closes minutes_per_day ingest create_writers',
+    'calendar start_session end_session minutes_per_day ingest create_writers',
 )
 
 BundleData = namedtuple(
@@ -210,9 +209,11 @@ def _make_bundle_core():
     @curry
     def register(name,
                  f,
-                 calendar=trading_days,
-                 opens=open_and_closes['market_open'],
-                 closes=open_and_closes['market_close'],
+                 calendar=nyse_cal,
+                 start_session=nyse_cal.first_session,
+                 end_session=nyse_cal.last_session,
+                 # opens=open_and_closes['market_open'],
+                 # closes=open_and_closes['market_close'],
                  minutes_per_day=390,
                  create_writers=True):
         """Register a data bundle ingest function.
@@ -243,7 +244,7 @@ def _make_bundle_core():
                   successful load.
               show_progress : bool
                   Show the progress for the current load where possible.
-        calendar : pd.DatetimeIndex, optional
+        calendar : zipline.utils.calendars.TradingCalendar, optional
             The exchange calendar to align the data to. This defaults to the
             NYSE calendar.
         market_open : pd.DatetimeIndex, optional
@@ -280,8 +281,8 @@ def _make_bundle_core():
             )
         _bundles[name] = _BundlePayload(
             calendar,
-            opens,
-            closes,
+            start_session,
+            end_session,
             minutes_per_day,
             f,
             create_writers,
@@ -355,9 +356,9 @@ def _make_bundle_core():
                 )
                 daily_bar_writer = BcolzDailyBarWriter(
                     daily_bars_path,
-                    nyse_cal,
-                    bundle.calendar[0],
-                    bundle.calendar[-1]
+                    bundle.calendar,
+                    bundle.start_session,
+                    bundle.end_session,
                 )
                 # Do an empty write to ensure that the daily ctables exist
                 # when we create the SQLiteAdjustmentWriter below. The
@@ -366,12 +367,12 @@ def _make_bundle_core():
 
                 daily_bar_writer.write(())
                 minute_bar_writer = BcolzMinuteBarWriter(
-                    bundle.calendar[0],
+                    bundle.start_session,
                     wd.ensure_dir(*minute_equity_relative(
                         name, timestr, environ=environ)
                     ),
-                    bundle.opens,
-                    bundle.closes,
+                    bundle.calendar.schedule['market_open'],
+                    bundle.calendar.schedule['market_close'],
                     minutes_per_day=bundle.minutes_per_day,
                 )
                 asset_db_writer = AssetDBWriter(
@@ -385,7 +386,7 @@ def _make_bundle_core():
                         wd.getpath(*adjustment_db_relative(
                             name, timestr, environ=environ)),
                         BcolzDailyBarReader(daily_bars_path),
-                        bundle.calendar,
+                        bundle.calendar.all_sessions,
                         overwrite=True,
                     )
                 )
@@ -400,7 +401,7 @@ def _make_bundle_core():
                 minute_bar_writer,
                 daily_bar_writer,
                 adjustment_db_writer,
-                bundle.calendar,
+                bundle.calendar.all_sessions,
                 cache,
                 show_progress,
                 pth.data_path([name, timestr], environ=environ),
