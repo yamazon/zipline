@@ -62,8 +62,7 @@ class MinuteResampleSessionBarReader(SessionBarReader):
         dts = self.calendar.minutes_in_range(start_date, end_date)
         frame = DataFrame(
             [d.T[0] for d in minute_data], index=columns, columns=dts).T
-        # Now need to resample here and then return result.
-        return minute_to_session(frame, self.calendar)
+        return minute_to_session(frame, self.calendar).values
 
     def spot_price(self, sid, day, colname):
         pass
