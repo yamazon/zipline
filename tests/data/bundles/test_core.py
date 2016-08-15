@@ -96,6 +96,8 @@ class BundleCoreTestCase(WithInstanceTmpDir, ZiplineTestCase):
                           daily_bar_writer,
                           adjustment_writer,
                           calendar,
+                          start_session,
+                          end_session,
                           cache,
                           show_progress,
                           output_dir):
@@ -152,7 +154,9 @@ class BundleCoreTestCase(WithInstanceTmpDir, ZiplineTestCase):
                           minute_bar_writer,
                           daily_bar_writer,
                           adjustment_writer,
-                          sessions,
+                          calendar,
+                          start_session,
+                          end_session,
                           cache,
                           show_progress,
                           output_dir):
@@ -297,7 +301,9 @@ class BundleCoreTestCase(WithInstanceTmpDir, ZiplineTestCase):
                   minute_bar_writer,
                   daily_bar_writer,
                   adjustment_writer,
-                  sessions,
+                  calendar,
+                  start_session,
+                  end_session,
                   cache,
                   show_progress,
                   output_dir):

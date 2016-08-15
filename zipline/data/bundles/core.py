@@ -235,8 +235,12 @@ def _make_bundle_core():
                   The daily bar writer to write into.
               adjustment_writer : SQLiteAdjustmentWriter
                   The adjustment db writer to write into.
-              calendar : pd.DatetimeIndex
+              calendar : zipline.utils.calendars.TradingCalendar
                   The trading calendar to ingest for.
+              start_session : pd.Timestamp
+                  The first session of data to ingest.
+              end_session : pd.Timestamp
+                  The last session of data to ingest.
               cache : DataFrameCache
                   A mapping object to temporarily store dataframes.
                   This should be used to cache intermediates in case the load
@@ -247,12 +251,10 @@ def _make_bundle_core():
         calendar : zipline.utils.calendars.TradingCalendar, optional
             The exchange calendar to align the data to. This defaults to the
             NYSE calendar.
-        market_open : pd.DatetimeIndex, optional
-            The minute when the market opens each day. This defaults to the
-            NYSE calendar.
-        market_close : pd.DatetimeIndex, optional
-            The minute when the market closes each day. This defaults to the
-            NYSE calendar.
+        start_session : pd.Timestamp, optional
+            The first session for which we want data.
+        end_session : pd.Timestamp, optional
+            The last session for which we want data.
         minutes_per_day : int, optional
             The number of minutes in each normal trading day.
         create_writers : bool, optional
@@ -401,7 +403,9 @@ def _make_bundle_core():
                 minute_bar_writer,
                 daily_bar_writer,
                 adjustment_db_writer,
-                bundle.calendar.all_sessions,
+                bundle.calendar,
+                bundle.start_session,
+                bundle.end_session,
                 cache,
                 show_progress,
                 pth.data_path([name, timestr], environ=environ),
