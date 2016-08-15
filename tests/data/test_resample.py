@@ -55,11 +55,14 @@ class TestResampleSessionBars(WithBcolzFutureMinuteBarReader,
         calendar = self.trading_calendars['CME']
 
         session = calendar.minute_to_session_label(self.minutes[0])
+        m_open, m_close = calendar.open_and_close_for_session(session)
         session_bar_reader = MinuteResampleSessionBarReader(
+            calendar,
             self.bcolz_future_minute_bar_reader
         )
         result = session_bar_reader.load_raw_arrays(
-            ['open'], session, session, [1])
+            ['open', 'high', 'low', 'close', 'volume'],
+            m_open, m_close, [1])
 
         import nose; nose.tools.set_trace()
         assert True
