@@ -13,7 +13,6 @@
 # limitations under the License.
 from numpy import nan
 from pandas import (
-    concat,
     date_range,
     DataFrame,
     Timestamp
